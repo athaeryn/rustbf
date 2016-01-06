@@ -49,6 +49,8 @@ fn main() {
         >.
     ";
 
+    let mut commands: Vec<Command> = Vec::new();
+
     for c in program.chars() {
         let command: Option<Command> = match c {
             '>' => Some(Command::IncrementPointer),
@@ -63,7 +65,11 @@ fn main() {
         };
 
         if let Some(c) = command {
-            print!("{}", c);
+            commands.push(c);
         }
+    }
+
+    for command in commands {
+        print!("{}", command);
     }
 }
