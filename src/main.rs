@@ -1,4 +1,5 @@
-#[derive(Debug)]
+use std::fmt;
+
 enum Command {
     Increment,
     Decrement,
@@ -10,10 +11,43 @@ enum Command {
     Write
 }
 
+impl fmt::Display for Command {
+    fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Result {
+        match *self {
+            Command::Increment    => write!(f, "+"),
+            Command::Decrement    => write!(f, "-"),
+            Command::JumpAhead    => write!(f, "["),
+            Command::JumpBack     => write!(f, "]"),
+            Command::PointerRight => write!(f, ">"),
+            Command::PointerLeft  => write!(f, "<"),
+            Command::Read         => write!(f, ","),
+            Command::Write        => write!(f, ".")
+        }
+    }
+}
+
+
 fn main() {
     // Prints 'Hello, world!'
     // From https://esolangs.org/wiki/Hello_world_program_in_esoteric_languages
-    let program = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++.>++.<<+++++++++++++++.>.+++.------.--------.>+.>.";
+    let program = "
+        ++++++++++
+        [
+            >+++++++
+            >++++++++++
+            >+++
+            >+
+            <<<<-
+        ] end of the loop
+        >++ .
+        >+ .
+        +++++++ .. +++ .
+        >++ .
+        << +++++++++++++++ .
+        > . +++ . ------ . -------- .
+        > + .
+        >.
+    ";
 
     for c in program.chars() {
         let instruction: Option<Command>;
@@ -30,9 +64,8 @@ fn main() {
             _ => None
         };
 
-        match instruction {
-            Some(i) => println!("{:?}", i),
-            None => {}
+        if let Some(i) = instruction {
+            print!("{}", i);
         }
     }
 }
