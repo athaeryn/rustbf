@@ -1,27 +1,27 @@
 use std::fmt;
 
 enum Command {
-    Increment,
-    Decrement,
-    PointerLeft,
-    PointerRight,
-    JumpAhead,
-    JumpBack,
-    Read,
-    Write
+    IncrementPointer,
+    DecrementPointer,
+    IncrementByte,
+    DecrementByte,
+    OutputByte,
+    InputByte,
+    JumpForward,
+    JumpBackward
 }
 
 impl fmt::Display for Command {
     fn fmt(&self, f:&mut fmt::Formatter) -> fmt::Result {
         match *self {
-            Command::Increment    => write!(f, "+"),
-            Command::Decrement    => write!(f, "-"),
-            Command::JumpAhead    => write!(f, "["),
-            Command::JumpBack     => write!(f, "]"),
-            Command::PointerRight => write!(f, ">"),
-            Command::PointerLeft  => write!(f, "<"),
-            Command::Read         => write!(f, ","),
-            Command::Write        => write!(f, ".")
+            Command::IncrementPointer => write!(f, ">"),
+            Command::DecrementPointer => write!(f, "<"),
+            Command::IncrementByte => write!(f, "+"),
+            Command::DecrementByte => write!(f, "-"),
+            Command::OutputByte => write!(f, "."),
+            Command::InputByte => write!(f, ","),
+            Command::JumpForward => write!(f, "["),
+            Command::JumpBackward => write!(f, "]")
         }
     }
 }
@@ -50,22 +50,20 @@ fn main() {
     ";
 
     for c in program.chars() {
-        let instruction: Option<Command>;
-
-        instruction = match c {
-            '+' => Some(Command::Increment),
-            '-' => Some(Command::Decrement),
-            '[' => Some(Command::JumpAhead),
-            ']' => Some(Command::JumpBack),
-            '>' => Some(Command::PointerRight),
-            '<' => Some(Command::PointerLeft),
-            ',' => Some(Command::Read),
-            '.' => Some(Command::Write),
+        let command: Option<Command> = match c {
+            '>' => Some(Command::IncrementPointer),
+            '<' => Some(Command::DecrementPointer),
+            '+' => Some(Command::IncrementByte),
+            '-' => Some(Command::DecrementByte),
+            '.' => Some(Command::OutputByte),
+            ',' => Some(Command::InputByte),
+            '[' => Some(Command::JumpForward),
+            ']' => Some(Command::JumpBackward),
             _ => None
         };
 
-        if let Some(i) = instruction {
-            print!("{}", i);
+        if let Some(c) = command {
+            print!("{}", c);
         }
     }
 }
