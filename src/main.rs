@@ -27,6 +27,45 @@ impl fmt::Display for Command {
     }
 }
 
+struct State {
+    tape: [i32; 30000],
+    ptr: i32
+}
+
+impl State {
+    fn new() -> State {
+        State { tape: [0; 30000], ptr: 0 }
+    }
+
+    fn increment_pointer(&mut self) {
+        if self.ptr < 30000 {
+            self.ptr += 1;
+        }
+    }
+
+    fn decrement_pointer(&mut self) {
+        if self.ptr > 0 {
+            self.ptr -= 1;
+        }
+    }
+
+    fn increment_byte(&mut self) {
+        self.tape[self.ptr as usize] += 1
+    }
+
+    fn decrement_byte(&mut self) {
+        self.tape[self.ptr as usize] -= 1
+    }
+
+    fn output_byte(&self) -> char {
+        self.tape[self.ptr as usize] as u8 as char
+    }
+
+    fn input_byte(&mut self, byte: u8) {
+        self.tape[self.ptr as usize] = byte as i32
+    }
+}
+
 fn main() {
     // Prints 'Hello, world!'
     // From https://esolangs.org/wiki/Hello_world_program_in_esoteric_languages
@@ -57,62 +96,41 @@ fn main() {
 }
 
 fn run(commands: Vec<Command>) {
-    let mut tape = [0; 30000];
-    let mut ptr = 0;
-
-    let mut last_forward_jump = 0;
+    let mut tape = State::new();
     let mut cmd_ptr = 0;
+
+    // TODO: Use a stack or something to support nested loops.
+    let mut last_forward_jump = 0;
 
     loop {
         match commands[cmd_ptr] {
-            Command::IncrementPointer => {
-                if ptr < tape.len() { ptr += 1 };
-                cmd_ptr += 1;
-            },
-            Command::DecrementPointer => {
-                if ptr > 0 { ptr -= 1 };
-                cmd_ptr += 1;
-            },
-            Command::IncrementByte => {
-                tape[ptr] += 1;
-                cmd_ptr += 1;
-            },
-            Command::DecrementByte => {
-                tape[ptr] -= 1;
-                cmd_ptr += 1;
-            },
-            Command::OutputByte => {
-                let c = tape[ptr] as u8 as char;
-                print!("{}", c);
-                cmd_ptr += 1;
-            },
-            Command::InputByte => { cmd_ptr += 1 }, // TODO
+            Command::IncrementPointer => tape.increment_pointer(),
+            Command::DecrementPointer => tape.decrement_pointer(),
+            Command::IncrementByte => tape.increment_byte(),
+            Command::DecrementByte => tape.decrement_byte(),
+            Command::OutputByte => print!("{}", tape.output_byte()),
+            Command::InputByte => { /* TODO */ },
             Command::JumpForward => {
                 last_forward_jump = cmd_ptr;
-                if tape[ptr] == 0 {
-                    cmd_ptr += 1;
+                if tape.output_byte() as u8 == 0 {
                     loop {
+                        cmd_ptr += 1;
                         if commands[cmd_ptr] != Command::JumpBackward {
                             break
                         }
-                        cmd_ptr += 1;
                         if cmd_ptr >= commands.len() {
                             break
                         }
                     }
-                    cmd_ptr += 1;
-                } else {
-                    cmd_ptr += 1;
                 }
             },
             Command::JumpBackward => {
-                if tape[ptr] != 0 {
+                if tape.output_byte() as u8 != 0 {
                     cmd_ptr = last_forward_jump;
-                } else {
-                    cmd_ptr += 1;
                 }
             }
         }
+        cmd_ptr += 1;
         if cmd_ptr >= commands.len() {
             break
         }
