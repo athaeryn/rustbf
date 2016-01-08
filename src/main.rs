@@ -27,14 +27,14 @@ impl fmt::Display for Command {
     }
 }
 
-struct State {
-    tape: [i32; 30000],
+struct Tape {
+    cells: [i32; 30000],
     ptr: i32
 }
 
-impl State {
-    fn new() -> State {
-        State { tape: [0; 30000], ptr: 0 }
+impl Tape {
+    fn new() -> Tape {
+        Tape { cells: [0; 30000], ptr: 0 }
     }
 
     fn increment_pointer(&mut self) {
@@ -50,19 +50,19 @@ impl State {
     }
 
     fn increment_byte(&mut self) {
-        self.tape[self.ptr as usize] += 1
+        self.cells[self.ptr as usize] += 1
     }
 
     fn decrement_byte(&mut self) {
-        self.tape[self.ptr as usize] -= 1
+        self.cells[self.ptr as usize] -= 1
     }
 
     fn output_byte(&self) -> char {
-        self.tape[self.ptr as usize] as u8 as char
+        self.cells[self.ptr as usize] as u8 as char
     }
 
     fn input_byte(&mut self, byte: u8) {
-        self.tape[self.ptr as usize] = byte as i32
+        self.cells[self.ptr as usize] = byte as i32
     }
 }
 
@@ -96,7 +96,7 @@ fn main() {
 }
 
 fn run(commands: Vec<Command>) {
-    let mut tape = State::new();
+    let mut tape = Tape::new();
     let mut cmd_ptr = 0;
 
     // TODO: Use a stack or something to support nested loops.
