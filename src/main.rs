@@ -1,4 +1,5 @@
 use std::fmt;
+use std::io::{stdout, stdin, Write, Read};
 
 #[derive(PartialEq)]
 enum Command {
@@ -57,8 +58,8 @@ impl Tape {
         self.cells[self.ptr as usize] -= 1
     }
 
-    fn output_byte(&self) -> char {
-        self.cells[self.ptr as usize] as u8 as char
+    fn output_byte(&self) -> u8 {
+        self.cells[self.ptr as usize] as u8
     }
 
     fn input_byte(&mut self, byte: u8) {
@@ -108,11 +109,11 @@ fn run(commands: Vec<Command>) {
             Command::DecrementPointer => tape.decrement_pointer(),
             Command::IncrementByte => tape.increment_byte(),
             Command::DecrementByte => tape.decrement_byte(),
-            Command::OutputByte => print!("{}", tape.output_byte()),
-            Command::InputByte => { /* TODO */ },
+            Command::OutputByte => { write_byte(tape.output_byte()); },
+            Command::InputByte => { tape.input_byte(read_byte()); },
             Command::JumpForward => {
                 last_forward_jump = cmd_ptr;
-                if tape.output_byte() as u8 == 0 {
+                if tape.output_byte() == 0 {
                     loop {
                         cmd_ptr += 1;
                         if commands[cmd_ptr] != Command::JumpBackward {
@@ -125,7 +126,7 @@ fn run(commands: Vec<Command>) {
                 }
             },
             Command::JumpBackward => {
-                if tape.output_byte() as u8 != 0 {
+                if tape.output_byte() != 0 {
                     cmd_ptr = last_forward_jump;
                 }
             }
@@ -137,3 +138,15 @@ fn run(commands: Vec<Command>) {
     }
 }
 
+fn write_byte(byte: u8) {
+    print!("{}", byte as char);
+}
+
+fn read_byte() -> u8 {
+    let mut buf = [0];
+    let result = stdin().take(1).read(&mut buf);
+    match result {
+        Ok(x) => { if x > 0 { buf[0] } else { 0 } },
+        Err(_) => { 0 }
+    }
+}
