@@ -116,7 +116,7 @@ fn run(commands: Vec<Command>) {
                 if tape.output_byte() == 0 {
                     loop {
                         cmd_ptr += 1;
-                        if commands[cmd_ptr] != Command::JumpBackward {
+                        if commands[cmd_ptr] == Command::JumpBackward {
                             break
                         }
                         if cmd_ptr >= commands.len() {
