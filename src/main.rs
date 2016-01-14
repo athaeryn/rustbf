@@ -1,5 +1,5 @@
 use std::fmt;
-use std::io::{stdout, stdin, Write, Read};
+use std::io::{stdin, Write, Read};
 
 #[derive(PartialEq)]
 enum Command {
