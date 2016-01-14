@@ -68,10 +68,9 @@ impl Tape {
 }
 
 fn main() {
-    // Prints 'Hello, world!'
-    // From https://esolangs.org/wiki/Hello_world_program_in_esoteric_languages
-    let program = "++++++++++[>+++++++>++++++++++>+++>+<<<<-]>++.>+.+++++++..+++
-                   .>++.<<+++++++++++++++.>.+++.------.--------.>+.>.";
+    // reimplemention of `cat`
+    // from https://esolangs.org/wiki/Brainfuck#Cat
+    let program = ",[.[-],]";
 
     let mut commands: Vec<Command> = Vec::new();
 
@@ -111,12 +110,24 @@ fn run(commands: Vec<Command>) {
             Command::OutputByte => { write_byte(tape.output_byte()); },
             Command::InputByte => { tape.input_byte(read_byte()); },
             Command::JumpForward => {
+                let mut local_jump_depth = 1;
                 jump_stack.push(cmd_ptr);
                 if tape.output_byte() == 0 {
                     loop {
                         cmd_ptr += 1;
-                        if commands[cmd_ptr] == Command::JumpBackward {
-                            break
+                        match commands[cmd_ptr] {
+                            Command::JumpForward => {
+                                local_jump_depth += 1;
+                                jump_stack.push(cmd_ptr);
+                            },
+                            Command::JumpBackward => {
+                                local_jump_depth -= 1;
+                                jump_stack.pop().unwrap();
+                                if local_jump_depth == 0 {
+                                    break
+                                }
+                            },
+                            _ => {}
                         }
                         if cmd_ptr >= commands.len() {
                             panic!("Ran out of instructions while jumping forward");
