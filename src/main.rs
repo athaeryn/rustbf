@@ -100,8 +100,7 @@ fn run(commands: Vec<Command>) {
     let mut tape = Tape::new();
     let mut cmd_ptr = 0;
 
-    // TODO: Use a stack or something to support nested loops.
-    let mut last_forward_jump = 0;
+    let mut jump_stack: Vec<usize> = Vec::new();
 
     loop {
         match commands[cmd_ptr] {
@@ -112,7 +111,7 @@ fn run(commands: Vec<Command>) {
             Command::OutputByte => { write_byte(tape.output_byte()); },
             Command::InputByte => { tape.input_byte(read_byte()); },
             Command::JumpForward => {
-                last_forward_jump = cmd_ptr;
+                jump_stack.push(cmd_ptr);
                 if tape.output_byte() == 0 {
                     loop {
                         cmd_ptr += 1;
@@ -120,19 +119,27 @@ fn run(commands: Vec<Command>) {
                             break
                         }
                         if cmd_ptr >= commands.len() {
-                            break
+                            panic!("Ran out of instructions while jumping forward");
                         }
                     }
                 }
             },
             Command::JumpBackward => {
                 if tape.output_byte() != 0 {
-                    cmd_ptr = last_forward_jump;
+                    match jump_stack.last() {
+                        Some(ptr) => { cmd_ptr = *ptr },
+                        None => panic!("Could not jump backward from ']' token at {}", cmd_ptr)
+                    }
+                } else {
+                    // We're not jumping back, so pop the last location off the
+                    // jump stack.
+                    jump_stack.pop().unwrap();
                 }
             }
         }
         cmd_ptr += 1;
         if cmd_ptr >= commands.len() {
+            // We've reached the end of execution.
             break
         }
     }
